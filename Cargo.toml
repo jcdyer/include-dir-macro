@@ -1,0 +1,8 @@
+[package]
+name = "webfile-test"
+version = "0.1.0"
+authors = ["J. Cliff Dyer <jcd@sdf.org>"]
+
+[dependencies]
+include-dir-derive = { path = "include-dir-derive" }
+
