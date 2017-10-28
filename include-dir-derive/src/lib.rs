@@ -6,7 +6,7 @@ extern crate syn;
 use std::path::{Path, PathBuf};
 use std::str;
 use proc_macro::TokenStream;
-use syn::{Token, Lit, StrStyle, TokenTree};
+use syn::{Token, Lit, StrStyle};
 
 #[proc_macro_derive(IncludeDir, attributes(dir))]
 pub fn include_dir(input: TokenStream) -> TokenStream {
@@ -54,7 +54,6 @@ fn path_to_str_literal<P: AsRef<Path>>(path: P) -> Token {
 
 fn impl_include_dir(ast: &syn::DeriveInput) -> quote::Tokens {
     let name = &ast.ident;
-    let attrs = &ast.attrs;
     let dir = if let Some(ref dirattr) = ast.attrs.iter().filter(|&attr| attr.name() == "dir").next() {
         get_path_from_attr(dirattr).unwrap()
     } else {
@@ -63,19 +62,29 @@ fn impl_include_dir(ast: &syn::DeriveInput) -> quote::Tokens {
     let paths: Vec<_> = get_files(dir);
 
     let keys: Vec<_> = paths.iter()
+        .map(|path| path.strip_prefix(dir).unwrap())
         .map(path_to_str_literal)
         .collect();
 
     let vals: Vec<_> = paths.iter()
         .map(|path| ::std::fs::canonicalize(path).expect("found"))
-        .map(|pathbuf| path_to_str_literal(&pathbuf))
+        .map(path_to_str_literal)
         .collect();
+    
+    let keys2 = keys.clone();
+    let vals2 = vals.clone();
 
     quote! {
         impl IncludeDir for #name {
-            fn construct_hash(&mut self) -> ::std::collections::HashMap<&'static str, &'static str> {
+            fn construct_str_hash(&mut self) -> ::std::collections::HashMap<&'static str, &'static str> {
                 let mut hashmap = ::std::collections::HashMap::new();
                 #( hashmap.insert(#keys, include_str!(#vals)); )*
+                hashmap
+            }
+
+            fn construct_bytes_hash(&mut self) -> ::std::collections::HashMap<&'static str, &'static [u8]> {
+                let mut hashmap = ::std::collections::HashMap::new();
+                #( hashmap.insert(#keys2, &include_bytes!(#vals2)[..]); )*
                 hashmap
             }
         }
