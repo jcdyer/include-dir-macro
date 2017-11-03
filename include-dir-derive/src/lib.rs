@@ -9,7 +9,7 @@ use proc_macro::TokenStream;
 use syn::{Token, Lit, StrStyle};
 
 #[proc_macro_derive(IncludeDir, attributes(dir))]
-pub fn include_dir(input: TokenStream) -> TokenStream {
+pub fn derive_include_dir(input: TokenStream) -> TokenStream {
     let s = input.to_string();
     let ast = syn::parse_derive_input(&s).unwrap();
     let gen = impl_include_dir(&ast);
@@ -76,15 +76,15 @@ fn impl_include_dir(ast: &syn::DeriveInput) -> quote::Tokens {
 
     quote! {
         impl IncludeDir for #name {
-            fn construct_str_hash(&mut self) -> ::std::collections::HashMap<&'static str, &'static str> {
+            fn construct_str_hash(&mut self) -> ::std::collections::HashMap<::std::path::PathBuf, &'static str> {
                 let mut hashmap = ::std::collections::HashMap::new();
-                #( hashmap.insert(#keys, include_str!(#vals)); )*
+                #( hashmap.insert(::std::path::PathBuf::from(#keys), include_str!(#vals)); )*
                 hashmap
             }
 
-            fn construct_bytes_hash(&mut self) -> ::std::collections::HashMap<&'static str, &'static [u8]> {
+            fn construct_bytes_hash(&mut self) -> ::std::collections::HashMap<::std::path::PathBuf, &'static [u8]> {
                 let mut hashmap = ::std::collections::HashMap::new();
-                #( hashmap.insert(#keys2, &include_bytes!(#vals2)[..]); )*
+                #( hashmap.insert(::std::path::PathBuf::from(#keys2), &include_bytes!(#vals2)[..]); )*
                 hashmap
             }
         }
