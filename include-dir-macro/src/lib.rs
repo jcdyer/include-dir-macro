@@ -80,7 +80,7 @@ fn impl_include_dir(args: Vec<syn::TokenTree>) -> Result<quote::Tokens, &'static
     Ok(quote! {
         {
             let mut hashmap = ::std::collections::HashMap::new();
-            #( hashmap.insert(::std::path::PathBuf::from(#keys), include_str!(#vals)); )*
+            #( hashmap.insert(::std::path::Path::new(#keys), &include_bytes!(#vals)[..]); )*
             hashmap
         }
     })
