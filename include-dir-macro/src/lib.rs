@@ -13,8 +13,8 @@ use syn::{Lit, StrStyle, Token};
 
 #[proc_macro]
 pub fn include_dir(input: TokenStream) -> TokenStream {
-    let s = input.to_string();
-    let args = syn::parse_token_trees(&s).unwrap();
+    let foo = input.to_string();
+    let args = syn::parse_token_trees(&foo).unwrap();
     let gen = impl_include_dir(args).unwrap();
     gen.parse().unwrap()
 }

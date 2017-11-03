@@ -1,15 +1,27 @@
 #![feature(proc_macro)]
 #![feature(use_extern_macros)]
-#[macro_use] extern crate include_dir_macro;
+
+//! This uses the `include_dir!()` procedural macro.  When run, it prints out the
+//! names of all the files in examples/poems, and then prints the contents of
+//! one of the files in the directory.
+//!
+//! Usage:
+//!
+//!     cargo run --example frommacro
+
+extern crate include_dir_macro;
 
 use std::path::Path;
+use std::str::from_utf8;
 
 fn main() {
     let hashmap = include_dir_macro::include_dir!("examples/poems");
     for key in hashmap.keys() {
         println!("{}", key.to_string_lossy());
     }
-    let nightingale = hashmap.get(Path::new("keats/ode-to-a-nightingale.txt"))
-        .and_then(|entry| ::std::str::from_utf8(*entry).ok()).unwrap();
-    println!("{}", nightingale);
+    let nightingale = Path::new("keats/ode-to-a-nightingale.txt");
+    println!("{}", nightingale.to_string_lossy());
+    let nightingale_text = hashmap.get(nightingale)
+        .and_then(|entry| from_utf8(*entry).ok()).unwrap();
+    println!("{}", nightingale_text);
 }

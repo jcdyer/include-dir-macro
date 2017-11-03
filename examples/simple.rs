@@ -1,5 +1,13 @@
-extern crate include_dir;
-#[macro_use] extern crate include_dir_derive;
+//! This example uses the custom-derive for the `IncludeDir` trait.
+//! 
+//! When run, it prints the entire contents of the `examples/static` directory
+//! as a string.
+//! 
+//! Usage:
+//! 
+//!    cargo run --example simple
+
+extern crate include_dir; #[macro_use] extern crate include_dir_derive;
 
 use include_dir::IncludeDir;
 
@@ -15,13 +23,13 @@ struct StaticFiles {
 
 impl StaticFiles {
     fn new() -> StaticFiles {
-        let mut foo = StaticFiles { 
+        let mut staticfiles = StaticFiles { 
             str_files: HashMap::new(),
             bytes_files: HashMap::new(),
         };
-        let files = foo.construct_str_hash();
-        foo.str_files = files;
-        foo
+        let files = staticfiles.construct_str_hash();
+        staticfiles.str_files = files;
+        staticfiles
     }
 }
 
