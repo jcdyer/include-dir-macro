@@ -7,7 +7,7 @@
 //!
 //! Usage:
 //!
-//!     cargo run --example frommacro
+//!     cargo run --example poems
 
 extern crate include_dir_macro;
 
