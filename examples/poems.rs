@@ -1,5 +1,4 @@
 #![feature(proc_macro)]
-#![feature(use_extern_macros)]
 
 //! This uses the `include_dir!()` procedural macro.  When run, it prints out the
 //! names of all the files in examples/poems, and then prints the contents of
