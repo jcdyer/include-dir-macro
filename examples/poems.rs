@@ -15,7 +15,7 @@ use std::path::Path;
 use std::str::from_utf8;
 
 fn main() {
-    let hashmap = include_dir_macro::include_dir!("examples/poems");
+    let hashmap = include_dir_macro::include_dir!("examples/static/poems");
     for key in hashmap.keys() {
         println!("{}", key.to_string_lossy());
     }

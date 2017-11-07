@@ -7,5 +7,19 @@ authors = ["J. Cliff Dyer <jcd@sdf.org>"]
 syn = "0.11.11"
 quote = "0.3.15"
 
+rocket = { version = "*", optional = true }
+rocket_codegen = { version = "*", optional = true }
+tree_magic = { version = "*", optional = true }
+
+[features]
+web = ["rocket", "rocket_codegen", "tree_magic"]
+
 [lib]
 proc-macro = true
+
+[[example]]
+name = "web"
+required-features = ["web"]
+
+[[example]]
+name = "poems"
