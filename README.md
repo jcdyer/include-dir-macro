@@ -5,7 +5,7 @@
 Using a nightly toolchain, add this to your Cargo.toml:
 
     [dependencies]
-    include-dir-macro = "0.1"
+    include-dir-macro = "0.2"
 
 Then at the root of your crate (in `main.rs` or `lib.rs`), add the following:
 
