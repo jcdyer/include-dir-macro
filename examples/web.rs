@@ -1,10 +1,4 @@
-#![feature(proc_macro)]
-#![feature(plugin)]
-#![plugin(rocket_codegen)]
-
-extern crate include_dir_macro;
-extern crate rocket;
-extern crate tree_magic;
+#![feature(proc_macro_hygiene, decl_macro)]
 
 
 use std::collections::HashMap;
@@ -66,6 +60,8 @@ impl StaticFiles {
         }
     }
 }
+
+use rocket::{get, routes};
 
 #[get("/")]
 fn hello() -> &'static str {

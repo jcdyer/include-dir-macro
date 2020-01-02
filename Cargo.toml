@@ -1,18 +1,18 @@
 [package]
 name = "include-dir-macro"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["J. Cliff Dyer <jcd@sdf.org>"]
+edition = "2018"
 
 [dependencies]
 syn = "0.11.11"
 quote = "0.3.15"
 
 rocket = { version = "*", optional = true }
-rocket_codegen = { version = "*", optional = true }
 tree_magic = { version = "*", optional = true }
 
 [features]
-web = ["rocket", "rocket_codegen", "tree_magic"]
+web = ["rocket", "tree_magic"]
 
 [lib]
 proc-macro = true

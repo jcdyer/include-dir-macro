@@ -9,12 +9,13 @@ Using a nightly toolchain, add this to your Cargo.toml:
 
 Then at the root of your crate (in `main.rs` or `lib.rs`), add the following:
 
-    #[feature(proc_macro)]
-    extern crate include-dir-macro;
+    #![feature(proc_macro_hygiene)]
+
+    use include_dir_macro::include_dir;
 
 Finally, you can call the macro as:
 
-    include_dir("path/to/directory");
+    include_dir!("path/to/directory");
 
 If the path is a relative path, it will be interpreted relative to the
 directory from which `cargo` or `rustc` was invoked 
@@ -81,8 +82,8 @@ directory, one would have to add each file by hand.  I saw two ways around
 this:
 
 One is to include code-generation in a crate's `build.rs` script that crawls
-the included directory, and adds an include_str for each file.  This method is
-supported by another crate called "include_dir", but I wanted an approach with
+the included directory, and adds an `include_str` for each file.  This method is
+supported by another crate called `include_dir`, but I wanted an approach with
 the ergonomic simplicity of the `include_bytes!()` macro.  This required using
-procedural macros, which in turn means that it currently (as of Rust 1.21)
-rustonly works on nightly releases.
+procedural macros, which in turn means that it currently (as of Rust 1.40)
+only works on nightly releases.

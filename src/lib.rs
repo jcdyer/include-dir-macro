@@ -1,20 +1,20 @@
-#![feature(proc_macro)]
 #![recursion_limit = "128"]
 extern crate proc_macro;
+
 #[macro_use]
 extern crate quote;
-extern crate syn;
 
 use std::path::{Path, PathBuf};
 use std::str;
 use proc_macro::TokenStream;
-use syn::{Lit, StrStyle, Token};
+
+use syn::{Lit, StrStyle, Token, TokenTree, parse_token_trees};
 
 
 #[proc_macro]
 pub fn include_dir(input: TokenStream) -> TokenStream {
     let foo = input.to_string();
-    let args = syn::parse_token_trees(&foo).unwrap();
+    let args = parse_token_trees(&foo).unwrap();
     let gen = impl_include_dir(args).unwrap();
     gen.parse().unwrap()
 }
@@ -46,13 +46,13 @@ fn path_to_str_literal<P: AsRef<Path>>(path: P) -> Token {
     ))
 }
 
-fn get_path_from_args(args: Vec<syn::TokenTree>) -> Result<PathBuf, &'static str> {
+fn get_path_from_args(args: Vec<TokenTree>) -> Result<PathBuf, &'static str> {
     match args.len() {
         0 => Err("empty"),
         1 => {
             let nexttree = args.into_iter().next().unwrap();
             match nexttree {
-                syn::TokenTree::Token(Token::Literal(syn::Lit::Str(ref val, ..))) => Ok(val.into()),
+                TokenTree::Token(Token::Literal(Lit::Str(ref val, ..))) => Ok(val.into()),
                 _ => Err("not str"),
             }
         }
@@ -61,7 +61,7 @@ fn get_path_from_args(args: Vec<syn::TokenTree>) -> Result<PathBuf, &'static str
 }
 
 
-fn impl_include_dir(args: Vec<syn::TokenTree>) -> Result<quote::Tokens, &'static str> {
+fn impl_include_dir(args: Vec<TokenTree>) -> Result<quote::Tokens, &'static str> {
     let dir = get_path_from_args(args)?;
     let paths: Vec<_> = get_files(&dir);
 
@@ -79,9 +79,9 @@ fn impl_include_dir(args: Vec<syn::TokenTree>) -> Result<quote::Tokens, &'static
 
     Ok(quote! {
         {
-            let mut hashmap = ::std::collections::HashMap::new();
-            #( hashmap.insert(::std::path::Path::new(#keys), &include_bytes!(#vals)[..]); )*
-            hashmap
+            let mut __include_dir_hashmap = ::std::collections::HashMap::new();
+            #( __include_dir_hashmap.insert(::std::path::Path::new(#keys), &include_bytes!(#vals)[..]); )*
+            __include_dir_hashmap
         }
     })
 }
