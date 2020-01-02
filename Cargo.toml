@@ -2,6 +2,7 @@
 name = "include-dir-macro"
 version = "0.1.1"
 authors = ["J. Cliff Dyer <jcd@sdf.org>"]
+license = "Apache License 2.0"
 edition = "2018"
 
 [dependencies]
