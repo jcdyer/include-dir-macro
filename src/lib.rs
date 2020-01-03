@@ -1,24 +1,23 @@
 #![recursion_limit = "128"]
-extern crate proc_macro;
 
-#[macro_use]
-extern crate quote;
+extern crate proc_macro;
+#[macro_use] extern crate quote;
 
 use std::path::{Path, PathBuf};
 use std::str;
-use proc_macro::TokenStream;
+use proc_macro2::{Span, TokenStream, TokenTree, Literal};
 
-use syn::{Lit, StrStyle, Token, TokenTree, parse_token_trees};
+use syn::{Lit, StrStyle, token::Token};
+use syn::{parse2, parse::ParseStream};
+
 
 
 #[proc_macro]
-pub fn include_dir(input: TokenStream) -> TokenStream {
-    let foo = input.to_string();
-    let args = parse_token_trees(&foo).unwrap();
-    let gen = impl_include_dir(args).unwrap();
-    gen.parse().unwrap()
-}
+pub fn include_dir(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    let input = TokenStream::from(input);
 
+    proc_macro::TokenStream::from(impl_include_dir(input).unwrap())
+}
 
 fn get_files<P: AsRef<Path>>(dir: P) -> Vec<PathBuf> {
     let mut files = vec![];
@@ -39,30 +38,37 @@ fn get_files<P: AsRef<Path>>(dir: P) -> Vec<PathBuf> {
 }
 
 
-fn path_to_str_literal<P: AsRef<Path>>(path: P) -> Token {
-    Token::Literal(Lit::Str(
-        path.as_ref().to_str().unwrap().to_owned(),
-        StrStyle::Cooked,
+fn path_to_str_literal<P: AsRef<Path>>(path: P) -> Lit {
+    Lit::Str(syn::LitStr::new(
+        path.as_ref().to_str().unwrap(),
+        Span::call_site(),
     ))
 }
 
-fn get_path_from_args(args: Vec<TokenTree>) -> Result<PathBuf, &'static str> {
+fn get_path_from_args(args: Vec<TokenTree>) -> syn::parse::Result<PathBuf> {
+    let path = parse2::<Literal>(nexttree)?.into();
+    
+    Ok(path)
     match args.len() {
-        0 => Err("empty"),
+        0 => Err("empty".into()),
         1 => {
             let nexttree = args.into_iter().next().unwrap();
+            let lit: Literal = parse2(nexttree)?;
+            lit.into()
+            /*
             match nexttree {
-                TokenTree::Token(Token::Literal(Lit::Str(ref val, ..))) => Ok(val.into()),
-                _ => Err("not str"),
+                TokenTree::Literal(Lit::Str(ref val, ..)) => Ok(val.into()),
+                _ => Err("not str".into()),
             }
+            */
         }
-        _ => Err("multiple trees"),
+        _ => Err("multiple trees".into()),
     }
 }
 
 
-fn impl_include_dir(args: Vec<TokenTree>) -> Result<quote::Tokens, &'static str> {
-    let dir = get_path_from_args(args)?;
+fn impl_include_dir(args: TokenStream) -> Result<TokenStream, &'static str> {
+    let dir = get_path_from_args(args.into_iter().collect())?;
     let paths: Vec<_> = get_files(&dir);
 
     let keys: Vec<_> = paths
